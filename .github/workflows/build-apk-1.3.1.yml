@@ -95,6 +95,15 @@ jobs:
           if [ -f ensure_jitpack_app_repository.py ]; then
             python3 ensure_jitpack_app_repository.py android/app/build.gradle || echo "Aviso: script auxiliar JitPack não aplicável; repositório já tratado em settings.gradle."
           fi
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/settings.gradle")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace("RepositoriesMode.PREFER_SETTINGS", "RepositoriesMode.PREFER_PROJECT")
+          s = s.replace("RepositoriesMode.FAIL_ON_PROJECT_REPOS", "RepositoriesMode.PREFER_PROJECT")
+          p.write_text(s, encoding="utf-8")
+          print("Política Gradle final: PREFER_PROJECT")
+          PY
           python3 patch_android_version.py android/app/build.gradle VERSAO.json
           python3 patch_visual.py android
 
