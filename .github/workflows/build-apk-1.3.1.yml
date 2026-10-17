@@ -42,11 +42,8 @@ jobs:
             unzip -q JARVIS-NOVA-1.2.7-fonte.zip -d /tmp/jarvis-source
             SRC=/tmp/jarvis-source/JARVIS-NOVA
             test -f "$SRC/package.json"
-            for item in "$SRC"/* "$SRC"/.[!.]*; do
-              [ -e "$item" ] || continue
-              [ "$(basename "$item")" = ".github" ] && continue
-              cp -a "$item" .
-            done
+            # O ponto e vírgula é escapado para o shell: \\;
+            find "$SRC" -mindepth 1 -maxdepth 1 ! -name .github -exec cp -a {} . \\;
           fi
           test -f package.json || { echo 'Envie JARVIS-NOVA-1.2.7-fonte.zip para a raiz do repositório antes de executar o build.'; exit 1; }
 
@@ -55,17 +52,6 @@ jobs:
 
       - name: Compatibilidade com teste legado do workflow
         run: cp .github/workflows/build-apk-1.3.1.yml .github/workflows/build-apk.yml
-
-      - name: Atualizar auditoria para extração segura
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('tests/test_release_readiness.py')
-          if p.exists():
-              s = p.read_text(encoding='utf-8')
-              s = s.replace('Comando find do workflow tem escape incorreto; pode interromper a extração do ZIP', 'Extração do ZIP usa loop shell seguro')
-              p.write_text(s, encoding='utf-8')
-          PY
 
       - name: Testes estáticos e regressão
         run: npm run test:all
