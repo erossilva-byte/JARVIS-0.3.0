@@ -77,19 +77,16 @@ jobs:
           python3 patch_gradle.py android/app/build.gradle || echo "Aviso: patch_gradle retornou erro de repositório; a configuração será corrigida diretamente."
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path("android/settings.gradle")
           s = p.read_text(encoding="utf-8")
           if "https://jitpack.io" not in s:
-              marker = "repositories {"
-              pos = s.find(marker)
-              if pos >= 0:
-                  end = s.find("\\n", pos + len(marker))
-                  if end >= 0:
-                      s = s[:end+1] + "        maven { url = uri('https://jitpack.io') }\\n" + s[end+1:]
-                  else:
-                      raise SystemExit("Não foi possível inserir JitPack em settings.gradle")
+              if re.search(r"repositories\\s*\\{", s):
+                  s = re.sub(r"(repositories\\s*\\{)", r"\\1\\n        maven { url = uri('https://jitpack.io') }", s, count=1)
+              elif "dependencyResolutionManagement" in s:
+                  s = re.sub(r"(dependencyResolutionManagement\\s*\\{)", r"\\1\\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\\n    repositories { google(); mavenCentral(); maven { url = uri('https://jitpack.io') } }", s, count=1)
               else:
-                  raise SystemExit("Bloco repositories não encontrado em settings.gradle")
+                  s += "\\ndependencyResolutionManagement {\\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\\n    repositories { google(); mavenCentral(); maven { url = uri('https://jitpack.io') } }\\n}\\n"
               p.write_text(s, encoding="utf-8")
           print("Repositório JitPack configurado em settings.gradle")
           PY
