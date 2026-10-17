@@ -73,6 +73,7 @@ jobs:
           mkdir -p "$D"
           cp MainActivity.java JarvisBackgroundPlugin.java JarvisService.java JarvisUtilPlugin.java JarvisLocalAIPlugin.java JarvisAlarmReceiver.java JarvisAlarmScheduler.java JarvisBootReceiver.java JarvisNotificationListener.java "$D/"
           sed -i 's/import com.getcapacitor.ActivityResult;/import androidx.activity.result.ActivityResult;/' "$D/JarvisLocalAIPlugin.java"
+          sed -i '/\.setTemperature(0\.35f)/d' "$D/JarvisLocalAIPlugin.java"
           python3 - <<'PY'
           from pathlib import Path
           p = Path("android/gradle/wrapper/gradle-wrapper.properties")
