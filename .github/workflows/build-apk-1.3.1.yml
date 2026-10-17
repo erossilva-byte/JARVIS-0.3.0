@@ -80,12 +80,12 @@ jobs:
           import re
           p = Path("android/settings.gradle")
           s = p.read_text(encoding="utf-8")
-          s = re.sub(r"RepositoriesMode\\.\\w+", "RepositoriesMode.PREFER_PROJECT", s)
+          s = s.replace("RepositoriesMode.PREFER_SETTINGS", "RepositoriesMode.PREFER_PROJECT").replace("RepositoriesMode.FAIL_ON_PROJECT_REPOS", "RepositoriesMode.PREFER_PROJECT")
           if "https://jitpack.io" not in s:
               if re.search(r"repositories\s*\{", s):
                   s = re.sub(r"(repositories\s*\{)", r"\1\n        maven { url = uri('https://jitpack.io') }", s, count=1)
               elif "dependencyResolutionManagement" in s:
-                  s = re.sub(r"(dependencyResolutionManagement\s*\{)", r"\1\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\n    repositories { google(); mavenCentral(); maven { url = uri('https://jitpack.io') } }", s, count=1)
+                  s = re.sub(r"(dependencyResolutionManagement\s*\{)", r"\1\n    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)\n    repositories { google(); mavenCentral(); maven { url = uri('https://jitpack.io') } }", s, count=1)
               else:
                   s += "\ndependencyResolutionManagement {\n    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)\n    repositories { google(); mavenCentral(); maven { url = uri('https://jitpack.io') } }\n}\n"
               p.write_text(s, encoding="utf-8")
