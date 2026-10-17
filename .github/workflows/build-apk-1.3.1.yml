@@ -80,6 +80,7 @@ jobs:
           import re
           p = Path("android/settings.gradle")
           s = p.read_text(encoding="utf-8")
+          s = s.replace("RepositoriesMode.FAIL_ON_PROJECT_REPOS", "RepositoriesMode.PREFER_PROJECT")
           if "https://jitpack.io" not in s:
               if re.search(r"repositories\s*\{", s):
                   s = re.sub(r"(repositories\s*\{)", r"\1\n        maven { url = uri('https://jitpack.io') }", s, count=1)
