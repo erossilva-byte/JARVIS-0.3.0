@@ -104,6 +104,15 @@ jobs:
           p.write_text(s, encoding="utf-8")
           print("Política Gradle final: PREFER_PROJECT")
           PY
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/build.gradle")
+          s = p.read_text(encoding="utf-8")
+          if "https://jitpack.io" not in s:
+              s = s.replace("mavenCentral()", "mavenCentral()\\n        maven { url 'https://jitpack.io' }")
+              p.write_text(s, encoding="utf-8")
+          print("JitPack configurado nos repositórios do projeto Android")
+          PY
           python3 patch_android_version.py android/app/build.gradle VERSAO.json
           python3 patch_visual.py android
 
