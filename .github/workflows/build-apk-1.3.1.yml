@@ -109,7 +109,7 @@ jobs:
           p = Path("android/build.gradle")
           s = p.read_text(encoding="utf-8")
           if "https://jitpack.io" not in s:
-              s = s.replace("mavenCentral()", "mavenCentral()\\n        maven { url 'https://jitpack.io' }")
+              s = s.replace("mavenCentral()", "mavenCentral()\n        maven { url 'https://jitpack.io' }")
               p.write_text(s, encoding="utf-8")
           print("JitPack configurado nos repositórios do projeto Android")
           PY
