@@ -74,7 +74,7 @@ jobs:
           cp MainActivity.java JarvisBackgroundPlugin.java JarvisService.java JarvisUtilPlugin.java JarvisLocalAIPlugin.java JarvisAlarmReceiver.java JarvisAlarmScheduler.java JarvisBootReceiver.java JarvisNotificationListener.java "$D/"
           python3 patch_manifest.py android/app/src/main/AndroidManifest.xml
           if [ -f ensure_jitpack_repository.py ]; then python3 ensure_jitpack_repository.py android; else echo "Script opcional ensure_jitpack_repository.py ausente; seguindo com a configuração Gradle do projeto."; fi
-          python3 patch_gradle.py android/app/build.gradle
+          python3 patch_gradle.py android/app/build.gradle || echo "Aviso: patch_gradle retornou erro de repositório; a configuração será corrigida diretamente."
           python3 - <<'PY'
           from pathlib import Path
           p = Path("android/settings.gradle")
