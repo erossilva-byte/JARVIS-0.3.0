@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Extrair código-fonte enviado ao repositório
         run: |
@@ -72,6 +72,15 @@ jobs:
           D=android/app/src/main/java/com/jarvis/nova
           mkdir -p "$D"
           cp MainActivity.java JarvisBackgroundPlugin.java JarvisService.java JarvisUtilPlugin.java JarvisLocalAIPlugin.java JarvisAlarmReceiver.java JarvisAlarmScheduler.java JarvisBootReceiver.java JarvisNotificationListener.java "$D/"
+          sed -i 's/import com.getcapacitor.ActivityResult;/import androidx.activity.result.ActivityResult;/' "$D/JarvisLocalAIPlugin.java"
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/gradle/wrapper/gradle-wrapper.properties")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace("gradle-8.2.1-all.zip", "gradle-8.5-all.zip").replace("gradle-8.2.1-bin.zip", "gradle-8.5-all.zip")
+          p.write_text(s, encoding="utf-8")
+          print("Gradle Wrapper alinhado com Java 21")
+          PY
           python3 patch_manifest.py android/app/src/main/AndroidManifest.xml
           if [ -f ensure_jitpack_repository.py ]; then python3 ensure_jitpack_repository.py android; else echo "Script opcional ensure_jitpack_repository.py ausente; seguindo com a configuração Gradle do projeto."; fi
           python3 patch_gradle.py android/app/build.gradle || echo "Aviso: patch_gradle retornou erro de repositório; a configuração será corrigida diretamente."
