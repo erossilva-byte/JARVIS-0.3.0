@@ -75,7 +75,27 @@ jobs:
           python3 patch_manifest.py android/app/src/main/AndroidManifest.xml
           if [ -f ensure_jitpack_repository.py ]; then python3 ensure_jitpack_repository.py android; else echo "Script opcional ensure_jitpack_repository.py ausente; seguindo com a configuração Gradle do projeto."; fi
           python3 patch_gradle.py android/app/build.gradle
-          python3 ensure_jitpack_app_repository.py android/app/build.gradle
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/settings.gradle")
+          s = p.read_text(encoding="utf-8")
+          if "https://jitpack.io" not in s:
+              marker = "repositories {"
+              pos = s.find(marker)
+              if pos >= 0:
+                  end = s.find("\\n", pos + len(marker))
+                  if end >= 0:
+                      s = s[:end+1] + "        maven { url = uri('https://jitpack.io') }\\n" + s[end+1:]
+                  else:
+                      raise SystemExit("Não foi possível inserir JitPack em settings.gradle")
+              else:
+                  raise SystemExit("Bloco repositories não encontrado em settings.gradle")
+              p.write_text(s, encoding="utf-8")
+          print("Repositório JitPack configurado em settings.gradle")
+          PY
+          if [ -f ensure_jitpack_app_repository.py ]; then
+            python3 ensure_jitpack_app_repository.py android/app/build.gradle || echo "Aviso: script auxiliar JitPack não aplicável; repositório já tratado em settings.gradle."
+          fi
           python3 patch_android_version.py android/app/build.gradle VERSAO.json
           python3 patch_visual.py android
 
