@@ -28,24 +28,7 @@ jobs:
             echo "# Auditoria do J.A.R.V.I.S."
             echo
             echo "## Arquivos relevantes"
-            find "$SRC" -type f | grep -E '\\.(java|kt|js|html|css|gradle|json|xml)$' | sed "s#^$SRC/##" | sort
-            echo
-            echo "## Scripts package.json"
-            node -e "const p=require('$SRC/package.json'); console.log(JSON.stringify(p.scripts||{},null,2))"
-            echo
-            echo "## Referências de IA local, microfone e serviços"
-            grep -RniE 'MediaPipe|LLMInference|JarvisLocalAI|SpeechRecognizer|AudioRecord|foregroundService|RECORD_AUDIO|wake.?word|openWakeWord|Gemma|local.?ai' "$SRC" --include='*.java' --include='*.kt' --include='*.js' --include='*.html' --include='*.xml' --include='*.gradle' || true
-          } > audit/relatorio.txt
-          cp "$SRC/package.json" audit/package.json
-          echo "Auditoria gerada; nenhum arquivo-fonte do aplicativo foi alterado."
-      - name: Publicar relatório
-        uses: actions/upload-artifact@v4
-        with:
-          name: JARVIS-auditoria-fonte
-          path: audit/
-          if-no-files-found: error
-          retention-days: 7
- | sed "s#^$SRC/##" | sort
+            find "$SRC" -type f | grep -E '\.(java|kt|js|html|css|gradle|json|xml)$' | sed "s#^$SRC/##" | sort
             echo
             echo "## Scripts package.json"
             node -e "const p=require('$SRC/package.json'); console.log(JSON.stringify(p.scripts||{},null,2))"
