@@ -28,7 +28,7 @@ jobs:
             echo "# Auditoria do J.A.R.V.I.S."
             echo
             echo "## Arquivos relevantes"
-            find "$SRC" -type f | grep -E '\\.(java|kt|js|html|css|gradle|json|xml) "s#^$SRC/##" | sort
+            find "$SRC" -type f | grep -E '\\.(java|kt|js|html|css|gradle|json|xml)$' | sed "s#^$SRC/##" | sort
             echo
             echo "## Scripts package.json"
             node -e "const p=require('$SRC/package.json'); console.log(JSON.stringify(p.scripts||{},null,2))"
