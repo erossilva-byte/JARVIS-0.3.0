@@ -1,0 +1,47 @@
+name: Auditoria do código-fonte J.A.R.V.I.S.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Inspecionar fonte sem alterar o APK
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Extrair e inventariar fonte
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f JARVIS-NOVA-1.2.7-fonte.zip
+          mkdir -p /tmp/jarvis-source audit
+          unzip -q JARVIS-NOVA-1.2.7-fonte.zip -d /tmp/jarvis-source
+          SRC=/tmp/jarvis-source/JARVIS-NOVA
+          test -f "$SRC/package.json"
+          {
+            echo "# Auditoria do J.A.R.V.I.S."
+            echo
+            echo "## Arquivos relevantes"
+            find "$SRC" -type f \\( -name '*.java' -o -name '*.kt' -o -name '*.js' -o -name '*.html' -o -name '*.css' -o -name '*.gradle' -o -name 'package.json' -o -name '*.json' \\ | sed "s#^$SRC/##" | sort
+            echo
+            echo "## Scripts package.json"
+            node -e "const p=require('$SRC/package.json'); console.log(JSON.stringify(p.scripts||{},null,2))"
+            echo
+            echo "## Referências de IA local, microfone e serviços"
+            grep -RniE 'MediaPipe|LLMInference|JarvisLocalAI|SpeechRecognizer|AudioRecord|foregroundService|RECORD_AUDIO|wake.?word|openWakeWord|Gemma|local.?ai' "$SRC" --include='*.java' --include='*.kt' --include='*.js' --include='*.html' --include='*.xml' --include='*.gradle' || true
+          } > audit/relatorio.txt
+          cp "$SRC/package.json" audit/package.json
+          echo "Auditoria gerada; nenhum arquivo-fonte do aplicativo foi alterado."
+      - name: Publicar relatório
+        uses: actions/upload-artifact@v4
+        with:
+          name: JARVIS-auditoria-fonte
+          path: audit/
+          if-no-files-found: error
+          retention-days: 7
