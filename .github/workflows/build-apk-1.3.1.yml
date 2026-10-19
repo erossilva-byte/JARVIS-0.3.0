@@ -76,6 +76,19 @@ jobs:
           sed -i '/\.setTemperature(0\.35f)/d' "$D/JarvisLocalAIPlugin.java"
           python3 - <<'PY'
           from pathlib import Path
+          p = Path("android/app/src/main/java/com/jarvis/nova/JarvisLocalAIPlugin.java")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace(".setMaxTokens(512)", ".setMaxTokens(256)")
+          old = 'call.reject("A IA local não conseguiu carregar ou executar esse modelo. Confira se o .task é compatível com MediaPipe e se há memória disponível.");'
+          new = 'String detalhe = e.getMessage() == null ? e.getClass().getSimpleName() : e.getClass().getSimpleName() + ": " + e.getMessage();\n                call.reject("Falha na IA local (" + detalhe + "). Verifique se o arquivo .task é compatível e se há memória livre suficiente.");'
+          if old not in s:
+              raise SystemExit("Não encontrei a mensagem de erro esperada em JarvisLocalAIPlugin.java; interrompendo patch.")
+          s = s.replace(old, new)
+          p.write_text(s, encoding="utf-8")
+          print("Diagnóstico da IA local habilitado; limite de tokens reduzido para teste de estabilidade (256).")
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
           p = Path("android/gradle/wrapper/gradle-wrapper.properties")
           s = p.read_text(encoding="utf-8")
           s = s.replace("gradle-8.2.1-all.zip", "gradle-8.5-all.zip").replace("gradle-8.2.1-bin.zip", "gradle-8.5-all.zip")
