@@ -40,6 +40,9 @@ jobs:
             grep -RniE 'MediaPipe|LLMInference|JarvisLocalAI|SpeechRecognizer|AudioRecord|foregroundService|RECORD_AUDIO|wake.?word|openWakeWord|Gemma|local.?ai' "$SRC" --include='*.java' --include='*.kt' --include='*.js' --include='*.html' --include='*.xml' --include='*.gradle' || true
           } > audit/relatorio.txt
           cp "$SRC/package.json" audit/package.json
+          mkdir -p audit/fonte
+          cp "$SRC/JarvisLocalAIPlugin.java" "$SRC/JarvisBackgroundPlugin.java" "$SRC/JarvisService.java" "$SRC/MainActivity.java" "$SRC/app.js" "$SRC/index.html" "$SRC/style.css" audit/fonte/
+          cp "$SRC/capacitor.config.json" audit/fonte/
           echo "Auditoria gerada; nenhum arquivo-fonte do aplicativo foi alterado."
       - name: Publicar relatório
         uses: actions/upload-artifact@v4
