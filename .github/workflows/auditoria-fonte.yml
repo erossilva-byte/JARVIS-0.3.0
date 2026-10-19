@@ -1,6 +1,9 @@
 name: Auditoria do código-fonte J.A.R.V.I.S.
 
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/auditoria-fonte.yml', 'JARVIS-NOVA-1.2.7-fonte.zip']
   workflow_dispatch:
 
 permissions:
